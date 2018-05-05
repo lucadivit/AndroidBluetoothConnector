@@ -21,7 +21,7 @@ interactions. In this class there are, other than bluetooth management methods, 
 passed the context of MainActivity to constructor of BluetoothConnectionManagement.
 * Because HC06 sends one byte at time, the application reads one character at time until he recieves the symbol "#". After this, he merges
 the characters and forms the String. Thus, when HC06 recieves data, he rensponses with "<desiredWord>#", and the app prints 
-"<desiredWord>". A simple Arduino script is in this repository.
+"<desiredWord>". A simple Arduino script is in this repository (sendAndReceiveBluetoothData.ino).
 * Broadcast Receiver events that, at moment, the app supports are: DEVICE_FOUND, DEVICE_CONNECTED, DEVICE_DISCONNECTED, DISCOVERY_STARTED, 
 DISCOVERY_FINISHED, BLUETOOTH_TURNED_OFF, CONNECTION_ERROR, SOCKET_READY, DATA_RECEIVED.
 * I develop this app with APIs level 16.
