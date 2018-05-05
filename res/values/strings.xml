@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Sim800C</string>
+    <string name="btnBluetooth">Cerca Dispositivi</string>
+    <string name="ATCommand">Comandi AT</string>
+    <string name="sendCommand">Invia</string>
+    <string name="connected">Connesso</string>
+    <string name="notConnected">Errore Di Connessione. Riprovare.</string>
+    <string name="disconnected">Disconnetto</string>
+</resources>

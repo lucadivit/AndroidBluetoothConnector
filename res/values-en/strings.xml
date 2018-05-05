@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sim800C Connector</string>
+    <string name="btnBluetooth">Start Scan</string>
+    <string name="ATCommand">AT Commands</string>
+    <string name="sendCommand">Send</string>
+    <string name="connected">Connected</string>
+    <string name="notConnected">Connection Error. Try Again.</string>
+    <string name="disconnected">Disconnected</string>
+</resources>
