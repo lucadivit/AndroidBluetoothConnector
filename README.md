@@ -19,7 +19,7 @@ I tested this app with HC06 module connected with Arduino.
 * Because the methods of Bluetooth Management are numerous, i create a class (BluetoothConnectionManagement.java) that semplify the 
 interactions. In this class there are, other than bluetooth management methods, many Intent to support Broadcast Receiver. To allow this i
 passed the context of MainActivity to constructor of BluetoothConnectionManagement.
-* Because HC06 send one byte at time, the application reads one character at time until he recieves the symbol "#". After this, he merges
+* Because HC06 sends one byte at time, the application reads one character at time until he recieves the symbol "#". After this, he merges
 the characters and forms the String. Thus, when HC06 recieves data, he rensponses with "<desiredWord>#", and the app prints 
 "<desiredWord>". A simple Arduino script is in this repository.
 * Broadcast Receiver events that, at moment, the app supports are: DEVICE_FOUND, DEVICE_CONNECTED, DEVICE_DISCONNECTED, DISCOVERY_STARTED, 
