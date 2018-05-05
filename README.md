@@ -10,9 +10,9 @@ I tested this app with HC06 module connected with Arduino.
 
 ## Instruction
 * Launch the app.
-* Search devices by clicking on the buttons.
+* Search devices by clicking on the button.
 * A list of devices will appear. Click on the element of interest.
-* Write something and send by clicking buttons.
+* Write something and send by clicking button.
 * If the remote device answers, a dialog will appear.
 
 ## Note
