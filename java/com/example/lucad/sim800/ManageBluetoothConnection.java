@@ -26,7 +26,6 @@ public class ManageBluetoothConnection extends AppCompatActivity{
     private BluetoothDevice bluetoothDevice;
     private BluetoothSocket bluetoothSocket;
     private UUID uuid = null;
-    private Boolean enableResult;
     private HashMap<String, String> devicesFounded = new HashMap<>();
     private Context context;
     private OutputStream outputStream = null;
@@ -123,23 +122,17 @@ public class ManageBluetoothConnection extends AppCompatActivity{
         this.bluetoothSocket = bluetoothSocket;
     }
 
-    public Boolean enableBluetooth(){
-        if(!bluetoothAdapter.isEnabled()){
-            int requestCode = 1;
-            int resultCode = -1;
-            Intent enableBT = new Intent(bluetoothAdapter.ACTION_REQUEST_ENABLE);
-            onActivityResult(requestCode,resultCode, enableBT);
-            ((Activity) context).startActivityForResult(enableBT,requestCode);
+    public Intent enableBluetooth(){
+        if (!bluetoothAdapter.isEnabled()){
+            return new Intent(bluetoothAdapter.ACTION_REQUEST_ENABLE);
         }else {
             Log.e("Bluetooth","Bluetooth is already enable");
+            return null;
         }
-        if (getEnableResult() == Boolean.TRUE){
-            Log.d("Bluetooth","Bluetooth is activated with success");
-            return Boolean.TRUE;
-        }else {
-            Log.e("Bluetooth","Bluetooth is not activated");
-            return Boolean.FALSE;
-        }
+    }
+
+    public Boolean isEnabled(){
+        return bluetoothAdapter.isEnabled();
     }
 
     public byte[] getBuffer() {
@@ -266,14 +259,6 @@ public class ManageBluetoothConnection extends AppCompatActivity{
         }
     }
 
-    public Boolean getEnableResult() {
-        return enableResult;
-    }
-
-    public void setEnableResult(Boolean enableResult) {
-        this.enableResult = enableResult;
-    }
-
     public void writeBluetoothData(String message) {
         try {
             getOutputStream().write(message.getBytes());
@@ -298,8 +283,6 @@ public class ManageBluetoothConnection extends AppCompatActivity{
                 String message = "";
                 String ch;
                 Message msg;
-                Intent i;
-                int counter = 0;
                 byte[] bytes = new byte[1024];
                 setBuffer(bytes);
                 while (true){
@@ -323,17 +306,35 @@ public class ManageBluetoothConnection extends AppCompatActivity{
         }).start();
     }
 
+/*
+    public void readBluetoothData(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int numBytes;
+                String message = "";
+                String ch;
+                Message msg;
+                byte[] bytes = new byte[2048];
+                setBuffer(bytes);
+                while (true){
+                    try {
+                        numBytes = getInputStream().read(bytes);
+                        msg = getHandler().obtainMessage(0, numBytes, -1, getBuffer());
+                        ch = new String((byte[]) msg.obj, 0, msg.arg1);
+                        message = message + ch;
+                        Log.e("message",message);
+                        Log.e("byte",String.valueOf(numBytes));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }*/
+
     public Boolean isDiscovering(){
         return bluetoothAdapter.isDiscovering();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK){
-            setEnableResult(true);
-        }else{
-            setEnableResult(false);
-        }
     }
 
     @Override

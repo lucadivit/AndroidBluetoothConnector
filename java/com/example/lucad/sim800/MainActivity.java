@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity{
     private Button sendData;
     private ListView devicesListView;
     private TextView dataInTextView;
-    private ProgressBar progressBar; //Spinner di connessione
+    private ProgressBar progressBar;
     private List<String> namesOfFoundedDevices = new ArrayList<>();
     private List<String> nameOfConnectedDevice = new ArrayList<>();
     ArrayAdapter<String> devicesAdapter;
@@ -41,6 +40,16 @@ public class MainActivity extends AppCompatActivity{
         super.onDestroy();
         bluetoothConnectionManager.onDestroy();
         unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK){
+            Log.e("enble","attivato");
+            initializeBroadcastReceiver();
+        }else{
+            System.exit(0);
+        }
     }
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -103,9 +112,14 @@ public class MainActivity extends AppCompatActivity{
         bluetoothConnectionManager = new ManageBluetoothConnection(activityContext);
 
         if (bluetoothConnectionManager.getBluetoothAdapter() != null){
-            bluetoothConnectionManager.enableBluetooth();
+            if (bluetoothConnectionManager.isEnabled() == Boolean.TRUE){
+                initializeBroadcastReceiver();
+            }else {
+                Intent enableBT = bluetoothConnectionManager.enableBluetooth();
+                startActivityForResult(enableBT, 1);//
+                onActivityResult(1, -1, enableBT);
+            }
             progressBar.getIndeterminateDrawable().setColorFilter(Color.BLUE, android.graphics.PorterDuff.Mode.MULTIPLY);
-            initializeBroadcastReceiver();
         }else {
             System.exit(0);
         }
