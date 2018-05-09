@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class ManageBluetoothConnection extends AppCompatActivity{
     private InputStream inputStream = null;
     private byte[] buffer;
     private Handler handler = new Handler();
+    private final String DEVICE_DISCONNECTED = "device disconnected";
 
     ManageBluetoothConnection(Context context){
         setContext(context);
@@ -44,18 +46,14 @@ public class ManageBluetoothConnection extends AppCompatActivity{
     }
 
     private void initializeBroadcastReceiver(){
-        IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        IntentFilter intentFilter1 = new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED);
-        IntentFilter intentFilter2 = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        IntentFilter intentFilter3 = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        IntentFilter intentFilter4 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        IntentFilter intentFilter5 = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
+        intentFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         ((Activity) context).registerReceiver(broadcastReceiver, intentFilter);
-        ((Activity) context).registerReceiver(broadcastReceiver, intentFilter1);
-        ((Activity) context).registerReceiver(broadcastReceiver, intentFilter2);
-        ((Activity) context).registerReceiver(broadcastReceiver, intentFilter3);
-        ((Activity) context).registerReceiver(broadcastReceiver, intentFilter4);
-        ((Activity) context).registerReceiver(broadcastReceiver, intentFilter5);
     }
 
     public OutputStream getOutputStream() {
@@ -186,7 +184,6 @@ public class ManageBluetoothConnection extends AppCompatActivity{
                 } catch (IOException e) {
                     Log.e("Errore Di Connessione", e.toString());
                 }
-
                 try {
                     method = aClass.getMethod("createRfcommSocket", paramTypes);
                 } catch (NoSuchMethodException e) {
@@ -285,11 +282,10 @@ public class ManageBluetoothConnection extends AppCompatActivity{
                 Message msg;
                 byte[] bytes = new byte[1024];
                 setBuffer(bytes);
-                while (true){
+                while (isConnected() == Boolean.TRUE){
                     try {
-                        numBytes = getInputStream().read(getBuffer());
-                        msg = getHandler().obtainMessage(0, numBytes, -1, getBuffer());
-                        ch = new String((byte[]) msg.obj, 0, msg.arg1);
+                        numBytes = getInputStream().read(getBuffer(), 0, getBuffer().length);
+                        ch = new String(bytes, 0, numBytes);
                         message = message + ch;
                         if(message.endsWith("#") == Boolean.TRUE){
                             message = message.substring(0, message.length()-1);
@@ -306,33 +302,6 @@ public class ManageBluetoothConnection extends AppCompatActivity{
         }).start();
     }
 
-/*
-    public void readBluetoothData(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int numBytes;
-                String message = "";
-                String ch;
-                Message msg;
-                byte[] bytes = new byte[2048];
-                setBuffer(bytes);
-                while (true){
-                    try {
-                        numBytes = getInputStream().read(bytes);
-                        msg = getHandler().obtainMessage(0, numBytes, -1, getBuffer());
-                        ch = new String((byte[]) msg.obj, 0, msg.arg1);
-                        message = message + ch;
-                        Log.e("message",message);
-                        Log.e("byte",String.valueOf(numBytes));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }*/
-
     public Boolean isDiscovering(){
         return bluetoothAdapter.isDiscovering();
     }
@@ -348,13 +317,12 @@ public class ManageBluetoothConnection extends AppCompatActivity{
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra(name,value);
-        ((Activity) context).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Bundle extras = intent.getExtras();
             Intent i;
             String action = intent.getAction();
             final String ACTION_FOUND = BluetoothDevice.ACTION_FOUND;
@@ -369,36 +337,37 @@ public class ManageBluetoothConnection extends AppCompatActivity{
                     getDevicesFounded().put(device.getName(), device.getAddress());
                     i = new Intent("deviceFound");
                     i.putExtra("device", device.getName());
-                    context.sendBroadcast(i);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(i);
                     break;
                 case ACTION_ACL_CONNECTED:
                     i = new Intent("deviceConnected");
                     i.putExtra("connected", true);
-                    context.sendBroadcast(i);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(i);
                     break;
                 case ACTION_DISCOVERY_STARTED:
                     i = new Intent("discoveryStarted");
                     i.putExtra("discStarted", true);
-                    context.sendBroadcast(i);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(i);
+                    //context.sendBroadcast(i);
                     break;
                 case ACTION_DISCOVERY_FINISHED:
                     i = new Intent("discoveryFinished");
                     i.putExtra("discFinished", true);
-                    context.sendBroadcast(i);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(i);
                 case ACTION_STATE_CHANGED:
                     final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                     switch (state) {
                         case BluetoothAdapter.STATE_OFF:
                             i = new Intent("bluetoothTurnedOff");
                             i.putExtra("turnOff", true);
-                            context.sendBroadcast(i);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(i);
                             break;
                     }
                     break;
                 case ACTION_ACL_DISCONNECTED:
                     i = new Intent("deviceDisconnected");
                     i.putExtra("disconnected", true);
-                    context.sendBroadcast(i);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(i);
                     break;
             }
         }

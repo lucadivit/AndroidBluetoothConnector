@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,8 +18,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity{
         bluetoothConnectionManager.onDestroy();
         unregisterReceiver(broadcastReceiver);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case "DATA_RECEIVED":
                     String dataReceived = intent.getExtras().getString("dataReceived");
-                    new AlertDialog.Builder(context)
+                    new AlertDialog.Builder(MainActivity.this)
                             .setMessage(dataReceived)
                             .show();
                     break;
@@ -164,22 +166,23 @@ public class MainActivity extends AppCompatActivity{
                     nameOfConnectedDevice.add(deviceName);
                     bluetoothConnectionManager.startBluetoothConnection(deviceAddress);
                 }
-
             }
         });
 
     }
 
     public void initializeBroadcastReceiver(){
-        registerReceiver(broadcastReceiver, new IntentFilter("deviceFound"));
-        registerReceiver(broadcastReceiver, new IntentFilter("deviceConnected"));
-        registerReceiver(broadcastReceiver, new IntentFilter("deviceDisonnected"));
-        registerReceiver(broadcastReceiver, new IntentFilter("discoveryStarted"));
-        registerReceiver(broadcastReceiver, new IntentFilter("discoveryFinished"));
-        registerReceiver(broadcastReceiver, new IntentFilter("bluetoothTurnedOff"));
-        registerReceiver(broadcastReceiver, new IntentFilter("DATA_RECEIVED"));
-        registerReceiver(broadcastReceiver, new IntentFilter("CONNECTION_ERROR"));
-        registerReceiver(broadcastReceiver, new IntentFilter("SOCKET_READY"));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("deviceFound");
+        filter.addAction("deviceConnected");
+        filter.addAction("deviceDisconnected");
+        filter.addAction("discoveryStarted");
+        filter.addAction("discoveryFinished");
+        filter.addAction("bluetoothTurnedOff");
+        filter.addAction("SOCKET_READY");
+        filter.addAction("CONNECTION_ERROR");
+        filter.addAction("DATA_RECEIVED");
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, filter);
     }
 
     public void displayDevices(String action){

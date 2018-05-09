@@ -5,5 +5,5 @@
     <string name="sendCommand">Invia</string>
     <string name="connected">Connesso</string>
     <string name="notConnected">Errore Di Connessione. Riprovare.</string>
-    <string name="disconnected">Disconnetto</string>
+    <string name="disconnected">Disconnesso</string>
 </resources>
